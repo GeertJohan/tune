@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title> AudioAddict API documentation - revision 5 </title>
+	<style>
+	@import url(http://fonts.googleapis.com/css?family=Fauna+One);
+	body {
+		font-family: 'Fauna One';
+	}
+
+	a, a:visited {
+		color: black;
+	}
+
+	html>/**/body ol { /* Won't be interpreted by IE6/7. */
+		list-style-type: none;
+		counter-reset: level1;
+	}
+	ol li:before {
+		content: counter(level1) ". ";
+		counter-increment: level1;
+	}
+	ol li ol {
+		list-style-type: none;
+		counter-reset: level2;
+	}
+	ol li ol li:before {
+		content: counter(level1) "." counter(level2) " ";
+		counter-increment: level2;
+	}
+
+	#wrapper {
+		width: 90%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	table {
+		border-style: solid;
+		border-color: #B5B5B5;
+	}
+
+	table tr td {
+		padding-left: 4px;
+		padding-right: 7px;
+	}
+
+	table tr td {
+		border-color: #B5B5B5;
+		border-top-style: solid;
+	}
+
+	table tr:first-child td {
+		border-top-style: none;
+	}
+
+	div[data-fd], div[data-d] {
+		display: inline-block;
+	}
+
+	.code {
+		font-family: 'Courier New', monospace;
+		font-size: 12px;
+		display: inline-block;
+	}
+
+	#st {
+		position: fixed;
+		display: none;
+		width: 32px;
+		height: 32px;
+		background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzIgMzIiIGhlaWdodD0iMzJweCIgaWQ9InN2ZzIiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDMyIDMyIiB3aWR0aD0iMzJweCIgeD0iMHB4IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOmNjPSJodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9ucyMiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIiB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB5PSIwcHgiPjxnIGlkPSJiYWNrZ3JvdW5kIj48cmVjdCBmaWxsPSJub25lIiBoZWlnaHQ9IjMyIiB3aWR0aD0iMzIiLz48L2c+PGcgaWQ9ImFycm93X3g1Rl9mdWxsX3g1Rl91cCI+PHBvbHlnb24gcG9pbnRzPSIyLDE2IDkuOTk5LDE2IDkuOTk5LDMwIDIxLjk5OSwzMCAyMS45OTksMTYgMjkuOTk5LDE2IDE1Ljk5OSwyICAiLz48L2c+PC9zdmc+);
+	}
+
+	</style>
+	<script>
+	// No jQuery! Oldskool JS!
+	window.onscroll = function() {
+		document.getElementById('st').style.display = document.body.scrollTop ? 'inline' : 'none';
+	}
+	window.onload = function() {
+		var elems = document.getElementsByTagName('B');
+		var i;
+		for(i = 0; i < elems.length; i++) {
+			if(elems[i].hasAttribute('data-al')) {
+				elems[i].innerHTML = '<a href="'+elems[i].innerHTML+'">'+elems[i].innerHTML+'</a>';
+			}
+		}
+
+		var h3 = document.getElementsByTagName('h3');
+		var h4 = document.getElementsByTagName('h4');
+		var counter = 1;
+		elems = document.getElementsByTagName('A');
+		for(i = 0; i < elems.length; i++) {
+			if(elems[i].href.indexOf('http') > -1 && elems[i].href.indexOf('#') === -1) {
+				elems[i].target = '_blank';
+			}
+		}
+
+		elems = Array.prototype.slice.call(document.getElementsByTagName('A'), 0).concat(Array.prototype.slice.call(document.getElementsByTagName('LI'), 0));
+		for(i = 0; i < elems.length; i++) {
+			if(elems[i].hasAttribute('data-l')) {
+				var tag;
+				var dl = elems[i].getAttribute('data-l');
+				if(dl == '3') {
+					tag = h3;
+				}
+				else if(dl== '4') {
+					tag = h4;
+				}
+				else {
+					tag = document.getElementsByTagName(dl);
+				}
+
+				for(var x = 0; x < tag.length; x++) {
+					window.y = tag[x];
+					if(tag[x].innerHTML.substr(tag[x].innerHTML.indexOf(' ')+1) == elems[i].innerHTML) {
+						tag[x].innerHTML = '<a name="'+counter+'">'+tag[x].innerHTML+'</a>';
+						elems[i].innerHTML = '<a href="#'+counter+'">'+elems[i].innerHTML+'</a>';
+						counter++;
+					}
+				}
+			}
+		}
+
+		if(location.hash.length) {
+			var hash = location.hash;
+			location.hash = null;
+			location.hash = hash;
+		}
+
+		var network = document.getElementById('network');
+		network.onchange = function() {
+			var elems = document.getElementsByTagName('DIV');
+			for(var i = 0; i < elems.length; i++) {
+				if(elems[i].hasAttribute('data-fd')) {
+					elems[i].innerHTML = network.value;
+				}
+				else if(elems[i].hasAttribute('data-d')) {
+					elems[i].innerHTML = network.value.split('.')[0];
+				}
+			}
+		}
+		network.onchange();
+	}
+	</script>
+</head>
+<body>
+	<a href="javascript:void(0);" onclick="document.body.scrollTop = 0;"><div style="display: none;" id="st"></div></a>
+	<div id="wrapper">
+		<h1>AudioAddict API documentation - revision 5</h1>
+		<h3>Table of contents</h3>
+		<ol>
+			<li data-l="3"><a href="#4">Introduction</a></li>
+			<li><a data-l="3"><a href="#1">Accessing the API</a></a>
+				<ol>
+					<li data-l="4"><a href="#5">Addresses and headers</a></li>
+					<li data-l="4"><a href="#6">Returned data</a></li>
+					<li data-l="4"><a href="#7">Security</a></li>
+				</ol>
+			</li>
+			<li><a data-l="3"><a href="#2">Resources</a></a>
+				<ol>
+					<li data-l="4"><a href="#8">About channels</a></li>
+					<li data-l="4"><a href="#9">Channels</a></li>
+					<li data-l="4"><a href="#10">Track history</a></li>
+					<li data-l="4"><a href="#11">Events</a></li>
+					<li data-l="4"><a href="#12">Using the batch_update resource</a></li>
+					<li data-l="4"><a href="#13">Users</a></li>
+					<li data-l="4"><a href="#14">Voting</a></li>
+					<li data-l="4"><a href="#15">Favorites</a></li>
+					<li data-l="4"><a href="#16">Trial</a></li>
+					<li data-l="4"><a href="#17">Other stuff</a></li>
+				</ol>
+			</li>
+			<li><a data-l="3"><a href="#3">Appendix</a></a>
+				<ol>
+					<li data-l="4"><a href="#18">Streamlists</a></li>
+					<li data-l="4"><a href="#19">Validating listen keys</a></li>
+				</ol>
+			</li>
+		</ol>
+		<h3><a name="4">1. Introduction</a></h3>
+		<p>
+			AudioAddict Inc. is the company behind the internet radio streaming 
+services Digitally Imported, RadioTunes.com, JazzRadio.com and 
+RockRadio.com. They have a RESTful API in place, but sadly, it lacks an 
+official documentation. This has been a pain in the ass for a lot of 
+people who wanted to build applications for listening to these streams. 
+That's why I decided to make an unofficial documentation myself. Please 
+note that since this API is not public, everything can change and break 
+at any time! Fortunately, this doesn't happen very often.<br><br>
+			Please choose a network you'd like to be used in the examples and specifications below:<br>
+			<select id="network">
+				<option selected="selected" value="di.fm">Digitally Imported [di.fm]</option>
+				<option value="radiotunes.com">RadioTunes.com</option>
+				<option value="jazzradio.com">JazzRadio.com</option>
+				<option value="rockradio.com">RockRadio.com</option>
+			</select>
+		</p>
+		<h3><a name="1">2. Accessing the API</a></h3>
+		<dd>
+			<h4><a name="5">2.1. Addresses and headers</a></h4>
+			<p>
+				The API server is located at <b>api.audioaddict.com</b>. A regular request's URL would look like <b data-al=""><a target="_blank" href="http://api.audioaddict.com/v1/di/track_history">http://api.audioaddict.com/v1/di/track_history</a></b>. <b>v1</b> stands for the API's version number. This is always the same. <b>di</b> stands for the streaming network. It's basically the part of the network's domain before the dot (<b>di</b>.fm, <b>jazzradio</b>.com). <b>track_history</b>
+ is a resource, it returns a JSON string with information about the 
+last-played track for the network's channels. Learn more about the 
+resources below.<br><br>
+
+				IMPORTANT: A lot of requests require an Authorization header:
+				</p><div class="code">Authorization: Basic ZXBoZW1lcm9uOmRheWVpcGgwbmVAcHA=</div><br><br>
+				This is basically the same as using the username "ephemeron" and password "dayeiph0ne@pp".<br><br>
+
+				Some requests require another host name, namely <b>listen.di.fm</b>. This host also supports HTTPS, but there's no need for it. A regular request's URL for this host would look like <b data-al=""><a target="_blank" href="http://listen.di.fm/public3/trance">http://listen.di.fm/public3/trance</a></b>. In case you want information about another network, replace <b>di.fm</b> with the domain of the network you want to use.<br><br>
+
+				Some requests require a request method that might not always be 
+available, cross-domain JSONP requests for example. The API offers a 
+feature that allows you to fake a request method. When you need to make a
+ DELETE request with JSONP, just add the GET parameter _method to the 
+URL and set it to DELETE. For example: <b data-al=""><a target="_blank" href="http://api.audioaddict.com/v1/di/tracks/6/vote/1?_method=DELETE&amp;api_key=key">http://api.audioaddict.com/v1/di/tracks/6/vote/1?_method=DELETE&amp;api_key=key</a></b> will delete a vote. The <b>api_key</b> parameter that is usually sent over DELETE, is now sent over GET.
+			<p></p>
+			<h4><a name="6">2.2. Returned data</a></h4>
+			<p>
+				Every request returns a JSON-encoded object, a string describing an 
+error, or nothing (this is indicated with a "HTTP 204 No Content" status
+ code). These strings can be decoded on almost all platforms. Here are 
+some examples of useful libraries for platforms that don't have a JSON 
+parser built in:
+				</p><ul>
+					<li><a target="_blank" href="http://james.newtonking.com/projects/json-net.aspx">JSON.NET</a>
+							<dd>A high-performance JSON parser and writer for .NET. .NET has a
+ built-in JSON parser but this is not available in all .NET versions. 
+Besides, this library delivers <a target="_blank" href="http://james.newtonking.com/images/jsonperformance.png">a lot more performance</a> than built-in parsers.</dd>
+					</li>
+					<li><a target="_blank" href="https://code.google.com/p/json-simple/">JSON.simple</a>
+							<dd>JSON parser and writer for Java.</dd>
+					</li>
+				</ul>
+				For some requests, other data types are possible. This can be done by adding an extension to the URL. <b data-al=""><a target="_blank" href="http://listen.di.fm/public3/trance.pls">http://listen.di.fm/public3/trance.pls</a></b> is an example of this.<br>
+				All requests support the JSONP data type. This is basically a 
+JSON-encoded object put in a JavaScript function's parameter. The 
+function name must always be given by the GET parameter <b>callback</b>, for example: <b data-al=""><a target="_blank" href="http://listen.di.fm/public3/trance.jsonp?callback=processStreams">http://listen.di.fm/public3/trance.jsonp?callback=processStreams</a></b>.
+			<p></p>
+			<h4><a name="7">2.3. Security</a></h4>
+			<p>
+				The API server supports HTTPS. Use it when you're sending or receiving sensitive information like passwords and such.
+			</p>
+		</dd>
+		<h3><a name="2">3. Resources</a></h3>
+		<dd>
+			<h4><a name="8">3.1. About channels</a></h4>
+			<p>
+				The <b>streamlist</b> parameter is a key that describes a stream 
+quality and format. These are different for each network. Please see the
+ Streamlists chapter in the appendix for more information.<br>
+				The <b>key</b> parameter is a key that describes a channel. It's 
+usually just the channel name in lowercase with spaces trimmed, but 
+there are some exceptions.
+			</p>
+			<h4><a name="9">3.2. Channels</a></h4>
+			<p>
+				</p><h5>Getting channel information</h5>
+				This request returns a JSON-encoded array with channel objects in it. Every channel object has these fields: <b>key</b>, <b>id</b>, <b>name</b>, <b>description</b> and <b>playlist</b>.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>listen.<div data-fd="">di.fm</div></td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://listen.<div data-fd="">di.fm</div>/[<b>streamlist</b>]</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<p>
+				</p><h5>Getting channel playlists</h5>
+				This request returns a JSON-encoded array with stream URLs in it. 
+The streams are in the bitrate and format specified by the streamlist. 
+The key parameter is the channel's key.<br>
+				Read more about streamlists in the dedicated chapter.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>listen.<div data-fd="">di.fm</div></td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://listen.<div data-fd="">di.fm</div>/[<b>streamlist</b>]/[<b>key</b>]</td>
+					</tr>
+					<tr>
+						<td>Possible data types</td>
+						<td>JSON, JSONP, PLS, ASX (NOTE: The ASX type gives wrong URLs)</td>
+					</tr>
+					<tr>
+						<td>Optional parameter</td>
+						<td>A listen key, the listen key will be appended to all URLs. Example: trance?[<b>listen_key</b>]</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<p>
+				</p><h5>Getting detailed information about channels</h5>
+				This is possible with the <b>batch_update</b> resource, read on!
+			<p></p>
+			<hr>
+			<h4><a name="10">3.3. Track history</a></h4>
+			<p>
+				</p><h5>Getting now playing tracks for all channels</h5>
+				This returns an array with track history objects.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/track_history</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Getting track history for a single channel</h5>
+				This returns an array with track history objects.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/track_history/channel/[<b>channel_id</b>]</td>
+					</tr>
+				</tbody></table>
+				<a href="#trackinfo"><h5>Getting information about a single track</h5></a>
+
+			<p></p>
+			<hr>
+			<h4><a name="11">3.4. Events</a></h4>
+			<p>
+				</p><h5>Getting upcoming events for a network</h5>
+				This returns a JSON-encoded array with event objects in it.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/events</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<p>
+				</p><h5>Getting upcoming events for a channel</h5>
+				This returns a JSON-encoded array with event objects in it. <b>id</b> is the channel's id.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/events/channel/[<b>id</b>]</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<hr>
+			<h4><a name="12">3.5. Using the batch_update resource</a></h4>
+			<p>
+				A DI crew member once said:
+				</p><blockquote>
+					"The batch update request is used for mobile apps to avoid making 
+many API calls, but you are welcome to use it for the time being. With 
+that said, theres no guarantee this won't change moving forward. As I've
+ always said, we do plan on releasing an official API in the future, but
+ theres a lot more involved than just exposing a few REST urls and our 
+API is still evolving."
+				</blockquote>
+				The batch_update resource can be used for getting a lot of data at 
+once. Here's a list of data in the batch_update's JSON including their 
+location.
+				<ul>
+					<li>Detailed information about channels - /channel_filters/0/channels/ - array of extended channel objects</li>
+					<li>The track objects of the tracks that are currently playing on 
+each channel - /track_history/ - object of track objects, with the 
+channel's <b>id</b> as key.</li>
+					<li>Stream URLs for all channels (of specified streamlists) - /streamlists/[<b>key</b>]/channels/index/streams/index/url - index stands for an array's element. <b>key</b> is the streamlist's key.</li>
+					<li>Loads of links to assets and channel art - /assets - also in the detailed channel objects (see first item in this list).</li>
+					<li>All upcoming events - /events - an array containing event objects.</li>
+				</ul>
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/mobile/batch_update</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>A comma-seperated list of streamlists to be included in the 
+data. The list must be given as a GET or POST parameter with the key <b>stream_set_key</b>.</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<hr>
+			<h4><a name="13">3.6. Users</a></h4>
+			<p>
+				</p><h5>Logging in</h5>
+				This data contains the <b>listen_key</b>, <b>api_key</b>, the name of the user, whether the user has a premium subscription, and some more.<br><br>
+
+				This returns a JSON-encoded object with information about the user.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/authenticate</td>
+					</tr>
+					<tr>
+						<td>Required parameters</td>
+						<td>The request must be POST, <b>api_key</b> or <b>username</b> and <b>password</b> must be sent in POST or GET.</td>
+				</tr></tbody></table>
+
+				<h5>Registering</h5>
+				This returns a JSON-encoded object with information about the created user.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members</td>
+					</tr>
+					<tr>
+						<td>Required parameters</td>
+						<td>The request must be POST, <b>member[email]</b>, <b>member[first_name]</b>, <b>member[last_name]</b>, <b>member[password]</b> and <b>member[password_confirmation]</b> must be sent in POST or GET.</td>
+				</tr></tbody></table>
+
+				<h5>Confirming</h5>
+				This confirms an account. <b>confirmation_token</b> is in the JSON object returned after registering.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>www.di.fm</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://www.di.fm/member/confirm/[<b>confirmation_token</b>]</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<hr>
+			<h4><a name="14">3.7. Voting</a></h4>
+			<p>
+				</p><h5>Voting</h5>
+
+				Track history objects contain a field called <b>track_id</b>. This is important for voting. When you get the track history array per channel, the objects also contain the field <b>votes</b>. This object has two elements called <b>down</b> and <b>up</b>. The values assigned to these keys are integers, these represent the number of up/down votes for a particular track.
+
+				<a name="trackinfo"><h5>Getting information about a single track</h5></a>
+
+				This returns a JSON-encoded object with information about a single 
+track including the number of votes and whether the track is a mix.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/tracks/[<b>track_id</b>]</td>
+					</tr>
+				</tbody></table>
+
+				This sets a vote for a track to up or down. <b>channel_id</b> stands
+ for the channel the track is or was playing on. NOTE: This feature is 
+available for all networks, even though the voting isn't implemented in 
+those websites.<br>
+				It returns a JSON-encoded object with the elements up and down, specifying the updated number of votes.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/tracks/[<b>track_id</b>]/vote/[<b>channel_id</b>]/[<i>up/down</i>]</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>The <b>api_key</b> in POST, or the <b>username</b> and <b>password</b> in POST.</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Retracting a vote</h5>
+
+				It returns a JSON-encoded object with the elements up and down, specifying the updated number of votes.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://api.audioaddict.com/v1/<div data-d="">di</div>/tracks/[<b>track_id</b>]/vote/[<b>channel_id</b>]</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>The <b>api_key</b> in DELETE, or the <b>username</b> and <b>password</b> in DELETE.</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+			<hr>
+			<h4><a name="15">3.8. Favorites</a></h4>
+			<p>
+				All accounts can keep favorite channels.
+
+				</p><h5>Reading favorite channels with the listen_key</h5>
+				This returns a playlist with the channel's name in the Title fields. Easy to parse manually.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>listen.<div data-fd="">di.fm</div></td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>http://listen.<div data-fd="">di.fm</div>/public3/favorites.pls?[<b>listen_key</b>]</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Writing favorite channels with the listen_key</h5>
+				This is not possible.
+
+				<h5>Reading favorite channels with the api_key or username and password</h5>
+				
+				This returns a JSON-encoded array with favorite objects it in. These objects contain <b>position</b> and <b>channel_id</b> elements.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/favorites/channels</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>The <b>api_key</b>, or the <b>username</b> and <b>password</b>. POST and GET are both allowed.</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Writing favorite channels with the api_key or username and password</h5>
+
+				This returns the same data kind of data as above.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/favorites/channels?api_key=[<b>api_key</b>]</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>
+							Raw JSON payload in POST, in the following format:<br>
+							<div class="code">{"favorites":[{"position":1,"channel_id":1}, {"position":2,"channel_id":2}]}</div><br>
+							This header is required: <div class="code">Content-Type: application/json</div>
+						</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Removing or adding channels</h5>
+
+				This returns the favorite object of the new channel or HTTP 204 No Content.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/favorites/channel/[<b>channel_id</b>]</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>
+							Making a POST request adds the channel, making a DELETE request removes it.
+							<b>api_key</b> or <b>username</b> and <b>password</b> in POST/DELETE or GET.
+						</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Reading favorite channels with the username and password; <b>alternative</b></h5>
+				This returns a playlist with the channel's name in the Title fields. Easy to parse manually.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>listen.<div data-fd="">di.fm</div></td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes (NOTE: The HTTPS certificate is invalid on this domain, that's why this method is not recommended.)</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://listen.<div data-fd="">di.fm</div>/public3/favorites.pls?username=[<b>username</b>]&amp;password=[<b>password</b>]
+						</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+
+			<h4><a name="16">3.9. Trial</a></h4>
+			<p>
+				AudioAddict offers a free 7-day premium trial period for all accounts.
+
+				</p><h5>Checking whether a trial is allowed</h5>
+
+				This returns a JSON-encoded object with one element called allowed, 
+with a value of true or false. It's false when the trial has been 
+activated before.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/subscriptions/trial_allowed/premium-pass?api_key=[<b>api_key</b>]<br>
+							or<br>
+							https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/subscriptions/trial_allowed/premium-pass?username=[<b>username</b>]&amp;password=[<b>password</b>]</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Activating a trial</h5>
+
+				This returns HTTP 204 No Content on success, or HTTP 422 
+Unprocessable Entry on failure, along with a JSON-encoded error message.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/subscriptions/trial/premium-pass?api_key=[<b>api_key</b>]<br>
+							or<br>
+							https://api.audioaddict.com/v1/<div data-d="">di</div>/members/1/subscriptions/trial/premium-pass?username=[<b>username</b>]&amp;password=[<b>password</b>]</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>The request must be POST, and the <b>api_key</b> or <b>username</b> and <b>password</b> must be sent as POST or as a GET parameter.</td>
+					</tr>
+				</tbody></table>
+			<p></p>
+
+			<h4><a name="17">3.10. Other stuff</a></h4>
+			<p>
+				</p><h5>Send a "Reset password" email</h5>
+
+				Returns HTTP 204 No Content.
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>Yes</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td>https://api.audioaddict.com/v1/<div data-d="">di</div>/members/send_reset_password</td>
+					</tr>
+					<tr>
+						<td>Required parameter</td>
+						<td>The request must be POST, and the <b>username</b> must be sent as POST or as a GET parameter.</td>
+					</tr>
+				</tbody></table>
+
+				<h5>Some info about prices</h5>
+
+				<table>
+					<tbody><tr>
+						<td>Host</td>
+						<td>api.audioaddict.com</td>
+					</tr>
+					<tr>
+						<td>HTTPS recommended</td>
+						<td>No</td>
+					</tr>
+					<tr>
+						<td>URL</td>
+						<td><b data-al=""><a target="_blank" href="http://api.audioaddict.com/v1/di/plans/premium-pass">http://api.audioaddict.com/v1/di/plans/premium-pass</a></b></td>
+					</tr>
+				</tbody></table>
+			<p></p>
+		</dd>
+		<h3><a name="3">4. Appendix</a></h3>
+		<dd>
+			<h4><a name="18">4.1. Streamlists</a></h4>
+			<p>
+				Streamlists are lists of stream URLs. All streams in a streamlist 
+have the same format and bitrate. Every network has their own 
+streamlists. All streamlists listed below are taken from the website and
+ the apps.
+				</p><h5>Digitally Imported</h5>
+				<table>
+					<tbody><tr><td>android_low</td><td>40kbps aac</td></tr>
+					<tr><td>android</td><td>64kbps aac</td></tr>
+					<tr><td>android_high</td><td>96kbps mp3</td></tr>
+					<tr><td>android_premium_low</td><td>40kbps aac</td></tr>
+					<tr><td>android_premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>android_premium</td><td>128kbps aac</td></tr>
+					<tr><td>android_premium_high</td><td>256kbps mp3</td></tr>
+					<tr><td>public1</td><td>64kbps aac</td></tr>
+					<tr><td>public2</td><td>40kbps aac</td></tr>
+					<tr><td>public3</td><td>96kbps mp3</td></tr>
+					<tr><td>premium_low</td><td>40kbps aac</td></tr>
+					<tr><td>premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>premium</td><td>128kbps aac</td></tr>
+					<tr><td>premium_high</td><td>256kbps mp3</td></tr>
+				</tbody></table>
+				<h5>RadioTunes.com</h5>
+				<table>
+					<tbody><tr><td>appleapp_low</td><td>40kbps aac</td></tr>
+					<tr><td>appleapp</td><td>64kbps aac</td></tr>
+					<tr><td>appleapp_high</td><td>96kbps mp3</td></tr>
+					<tr><td>appleapp_premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>appleapp_premium</td><td>128kbps aac</td></tr>
+					<tr><td>appleapp_premium_high</td><td>256kbps mp3</td></tr>
+					<tr><td>public1</td><td>40kbps aac</td></tr>
+					<tr><td>public5</td><td>40kbps wma</td></tr>
+					<tr><td>public3</td><td>96kbps mp3</td></tr>
+					<tr><td>premium_low</td><td>40kbps aac</td></tr>
+					<tr><td>premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>premium</td><td>128kbps aac</td></tr>
+					<tr><td>premium_high</td><td>256kbps mp3</td></tr>
+				</tbody></table>
+				<h5>JazzRadio</h5>
+				<table>
+					<tbody><tr><td>appleapp_low</td><td>40kbps aac</td></tr>
+					<tr><td>appleapp</td><td>64kbps aac</td></tr>
+					<tr><td>appleapp_premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>appleapp_premium</td><td>128kbps aac</td></tr>
+					<tr><td>appleapp_premium_high</td><td>256kbps mp3</td></tr>
+					<tr><td>public1</td><td>40kbps aac</td></tr>
+					<tr><td>public3</td><td>64kbps mp3</td></tr>
+					<tr><td>premium_low</td><td>40kbps aac</td></tr>
+					<tr><td>premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>premium</td><td>128kbps aac</td></tr>
+					<tr><td>premium_high</td><td>256kbps mp3</td></tr>
+				</tbody></table>
+				<h5>RockRadio</h5>
+				<table>
+					<tbody><tr><td>android_low</td><td>40kbps aac</td></tr>
+					<tr><td>android</td><td>64kbps aac</td></tr>
+					<tr><td>android_premium_medium</td><td>64kbps aac</td></tr>
+					<tr><td>android_premium</td><td>128kbps aac</td></tr>
+					<tr><td>android_premium_high</td><td>256kbps mp3</td></tr>
+					<tr><td>public3</td><td>96kbps mp3</td></tr>
+				</tbody></table>
+			<p></p>
+
+			<h4><a name="19">4.2. Validating listen keys</a></h4>
+			<p>
+				There's no good way to do this, therefore it's better to let users 
+log in using their email and password. If it's really required, here's a
+ way:
+				</p><ol>
+					<li>Try to download the favorites playlist: <b data-al=""><a target="_blank" href="http://listen.di.fm/public3/favorites?[%3Cb%3Elisten_key%3C/b%3E]">http://listen.di.fm/public3/favorites?[<b>listen_key</b>]</a></b>. If this fails, the key is invalid.</li>
+					<li>Try to connect to a premium stream, if this fails, the key is not premium.</li>
+				</ol>
+				<br>
+				I use <a target="_blank" href="http://pastebin.com/E7p9vMFU">this Java class</a> for validating listen keys in my app, feel free to use it.
+			<p></p>
+		</dd>
+	</div>
+
+</body></html>
