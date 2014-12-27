@@ -1,7 +1,10 @@
 package aaapi
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 )
 
 var (
@@ -62,4 +65,19 @@ func (n *Network) StreamlistByKey(key string) (*Streamlist, error) {
 		}
 	}
 	return nil, ErrStreamlistNotAvailable
+}
+
+func (n *Network) TrackHistory() (map[string]*Track, error) {
+	url := fmt.Sprintf("%s/%s/track_history", APIBaseURL, n.Key)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var th = make(map[string]*Track)
+	err = json.NewDecoder(resp.Body).Decode(&th)
+	if err != nil {
+		return nil, err
+	}
+	return th, nil
 }

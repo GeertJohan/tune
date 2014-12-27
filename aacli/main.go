@@ -9,6 +9,7 @@ import (
 	"github.com/nsf/termbox-go"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 )
 
@@ -120,6 +121,29 @@ func main() {
 	}
 	defer display.Close()
 
+	// setup tracklist on display
+	go func() {
+		trackHistory, err := network.TrackHistory()
+		if err != nil {
+			fmt.Printf("error getting track history: %v\n", err)
+			os.Exit(1)
+		}
+		channelList := make([]*channelInfo, 0, len(channels))
+		for _, ch := range channels {
+			ci := &channelInfo{
+				channelKey:  ch.Key,
+				channelName: ch.Name,
+			}
+
+			trackInfo := trackHistory[strconv.Itoa(ch.ID)]
+			if trackInfo != nil {
+				ci.trackTitle = trackInfo.Name
+			}
+			channelList = append(channelList, ci)
+		}
+		display.SetChannelList(channelList)
+	}()
+
 	// create player
 	player := aaplayer.NewPlayer(account)
 	player.SetVolume(config.Player.Volume)
@@ -183,7 +207,7 @@ func main() {
 		channel := channelsByKey[config.Player.LastPlayedChannel]
 		if channel != nil {
 			player.SetChannel(channel)
-			display.SetChannel(channel.Name)
+			display.SetChannel(channel.Name, channel.Key)
 		}
 	}
 
@@ -213,6 +237,17 @@ eventloop:
 					break eventloop
 				case termbox.KeySpace:
 					player.PlayStop()
+				case termbox.KeyArrowUp:
+					display.MoveChannelListSelection(-1)
+				case termbox.KeyArrowDown:
+					display.MoveChannelListSelection(1)
+				case termbox.KeyEnter:
+					channelKey := display.GetChannelSelection()
+					ch := channelsByKey[channelKey]
+					player.SetChannel(ch)
+					display.SetChannel(ch.Name, ch.Key)
+					config.Player.LastPlayedChannel = ch.Key
+					config.Save()
 				}
 				switch event.Ch {
 				case 'q':

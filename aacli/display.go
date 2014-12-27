@@ -14,19 +14,23 @@ const (
 	runeTimebarPassed = '#'
 	runeTimebarLeft   = '-'
 	runeTimebarEnd    = ']'
+	runeSelected      = '→'
 )
 
 type Display struct {
 	volume int
 
-	title         string // window title
-	channel       string // channel name
-	playing       bool   // indicates if player is currently playing
-	trackTitle    string // track title
-	trackDuration time.Duration
-	trackPassed   time.Duration
-	message       string // notification message
-	channellist   []string
+	title               string // window title
+	channelKey          string // channel key
+	channelName         string // channel name
+	playing             bool   // indicates if player is currently playing
+	trackTitle          string // track title
+	trackDuration       time.Duration
+	trackPassed         time.Duration
+	message             string // notification message
+	channelList         []*channelInfo
+	channelListSelected int
+	channelListStart    int
 
 	chStop   chan struct{}
 	chLock   chan struct{}
@@ -37,6 +41,12 @@ type Display struct {
 		x int
 		y int
 	}
+}
+
+type channelInfo struct {
+	channelKey  string
+	channelName string
+	trackTitle  string
 }
 
 func NewDisplay(title string) (*Display, error) {
@@ -85,6 +95,7 @@ func (d *Display) run() {
 			if d.playing {
 				d.trackPassed += sec
 				d.drawTime()
+				termbox.Flush()
 			}
 		case <-d.chLock:
 			<-d.chUnlock
@@ -149,19 +160,8 @@ func (d *Display) notificationManager() {
 
 func (d *Display) drawBasics() {
 	// title and title seperator
-	for i, c := range d.title {
-		termbox.SetCell(i, 0, c, termbox.ColorBlack, termbox.Attribute(244))
-	}
-	termbox.SetCell(len(d.title)+0, 0, ' ', termbox.ColorBlack, termbox.Attribute(244))
-	termbox.SetCell(len(d.title)+1, 0, '-', termbox.ColorBlack, termbox.Attribute(244))
-	termbox.SetCell(len(d.title)+2, 0, ' ', termbox.ColorBlack, termbox.Attribute(244))
-
-	for i, c := range d.title {
-		termbox.SetCell(i, d.size.y-2, c, termbox.ColorWhite, termbox.ColorBlack)
-	}
-	termbox.SetCell(len(d.title)+0, d.size.y-2, ' ', termbox.ColorWhite, termbox.ColorBlack)
-	termbox.SetCell(len(d.title)+1, d.size.y-2, '-', termbox.ColorWhite, termbox.ColorBlack)
-	termbox.SetCell(len(d.title)+2, d.size.y-2, ' ', termbox.ColorWhite, termbox.ColorBlack)
+	d.writeText(d.title+` - `, 0, 0, termbox.ColorBlack, termbox.Attribute(244))
+	d.writeText(d.title+` - `, 0, d.size.y-2, termbox.ColorWhite, termbox.ColorBlack)
 
 	// help
 	helpmessage := `h:help  q:quit  p/space:start/stop  +/-:volume enter:select channel`
@@ -172,27 +172,14 @@ func (d *Display) drawBasics() {
 	//++
 }
 func (d *Display) drawChannel() {
-	for i, c := range d.channel {
-		x := i + len(d.title) + 3
-		if x > d.size.x {
-			break
-		}
-		termbox.SetCell(x, 0, c, termbox.ColorBlack, termbox.Attribute(244))
-	}
-	d.clearRow(len(d.title)+3+len(d.channel), 0, termbox.Attribute(244))
-	// for i := len(d.title) + 3 + len(d.channel); i < d.size.x; i++ {
-	// 	termbox.SetCell(i, 0, ' ', termbox.ColorBlack, termbox.Attribute(244))
-	// }
-	termbox.Flush()
+	x := len(d.title) + 3
+	x = d.writeText(d.channelName, x, 0, termbox.ColorBlack, termbox.Attribute(244))
+	d.clearRow(x, 0, termbox.Attribute(244))
 }
 func (d *Display) drawTrackTitle() {
-	var x int
-	for i, c := range d.trackTitle {
-		x = i + 5
-		termbox.SetCell(x, 1, c, termbox.ColorWhite, termbox.ColorBlack)
-	}
-	d.clearRow(x+1, 1, termbox.ColorBlack)
-	termbox.Flush()
+	x := 5
+	x = d.writeText(d.trackTitle, x, 1, termbox.ColorWhite, termbox.ColorBlack)
+	d.clearRow(x, 1, termbox.ColorBlack)
 }
 func (d *Display) drawPlaying() {
 	if d.playing {
@@ -200,7 +187,6 @@ func (d *Display) drawPlaying() {
 	} else {
 		termbox.SetCell(2, 1, runeStopped, termbox.ColorRed, termbox.ColorBlack)
 	}
-	termbox.Flush()
 }
 func (d *Display) drawTime() {
 	passedMins := int(d.trackPassed.Minutes())
@@ -241,14 +227,67 @@ func (d *Display) drawTime() {
 	for x := posStart + 1 + barSizePassed + 1; x < posEnd; x++ {
 		termbox.SetCell(x, 2, runeTimebarLeft, termbox.ColorWhite, termbox.ColorBlack)
 	}
-	termbox.Flush()
 }
+
 func (d *Display) drawVolume() {}
+
+func (d *Display) drawChannelList() {
+	if len(d.channelList) == 0 {
+		return
+	}
+	viewHeight := d.size.y - 7
+	viewStartY := 4
+
+	if d.channelListStart > d.channelListSelected {
+		d.channelListStart = d.channelListSelected
+	} else if d.channelListStart+viewHeight <= d.channelListSelected {
+		d.channelListStart = d.channelListSelected - viewHeight + 1
+	}
+
+	if d.channelListStart < 0 {
+		d.channelListStart = 0
+	} else if d.channelListStart+viewHeight > len(d.channelList) {
+		d.channelListStart = len(d.channelList) - viewHeight
+	}
+
+	for i := 0; i < viewHeight; i++ {
+		j := i + d.channelListStart
+		y := viewStartY + i
+		x := 5
+		if j >= len(d.channelList) {
+			d.clearRow(x, y, termbox.ColorBlack)
+			continue
+		}
+		chinfo := d.channelList[j]
+		selectionRune := ' '
+		attrBackground := termbox.ColorBlack
+		if d.channelListSelected == j {
+			selectionRune = runeSelected
+			attrBackground = termbox.Attribute(233)
+		}
+		termbox.SetCell(3, y, selectionRune, termbox.ColorYellow, termbox.ColorBlack)
+		x = d.writeText(chinfo.channelName+`: `, x, y, termbox.ColorWhite|termbox.AttrBold, attrBackground)
+		x = d.writeText(chinfo.trackTitle, x, y, termbox.ColorWhite, attrBackground)
+		d.clearRow(x, y, attrBackground)
+	}
+}
 
 func (d *Display) clearRow(startx, y int, bg termbox.Attribute) {
 	for x := startx; x < d.size.x; x++ {
 		termbox.SetCell(x, y, ' ', termbox.ColorBlack, bg)
 	}
+}
+
+func (d *Display) writeText(str string, x, y int, fg, bg termbox.Attribute) int {
+	runes := []rune(str)
+	for _, c := range runes {
+		if x >= d.size.x {
+			break
+		}
+		termbox.SetCell(x, y, c, fg, bg)
+		x++
+	}
+	return x
 }
 
 func (d *Display) Resize(x, y int) {
@@ -267,6 +306,8 @@ func (d *Display) Resize(x, y int) {
 	d.drawTrackTitle()
 	d.drawPlaying()
 	d.drawTime()
+	d.drawChannelList()
+	//++ TODO: re-write current notification; move notification drawing to drawNotification()
 
 	// flush to terminal
 	termbox.Flush()
@@ -276,10 +317,11 @@ func (d *Display) Notify(message string) {
 	d.chNotify <- message
 }
 
-func (d *Display) SetChannel(channel string) {
+func (d *Display) SetChannel(channelName, channelKey string) {
 	d.lock()
 	defer d.unlock()
-	d.channel = channel
+	d.channelName = channelName
+	d.channelKey = channelKey
 	d.drawChannel()
 	termbox.Flush()
 }
@@ -315,4 +357,29 @@ func (d *Display) SetVolume(volume int) {
 	d.volume = volume
 	d.drawVolume()
 	termbox.Flush()
+}
+
+func (d *Display) SetChannelList(chl []*channelInfo) {
+	d.lock()
+	defer d.unlock()
+	d.channelList = chl
+	d.drawChannelList()
+	termbox.Flush()
+}
+
+func (d *Display) MoveChannelListSelection(m int) {
+	d.lock()
+	defer d.unlock()
+	d.channelListSelected += m
+	if d.channelListSelected < 0 {
+		d.channelListSelected = 0
+	} else if d.channelListSelected >= len(d.channelList) {
+		d.channelListSelected = len(d.channelList) - 1
+	}
+	d.drawChannelList()
+	termbox.Flush()
+}
+
+func (d *Display) GetChannelSelection() string {
+	return d.channelList[d.channelListSelected].channelKey
 }
