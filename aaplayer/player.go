@@ -3,7 +3,6 @@ package aaplayer
 import (
 	"errors"
 	"fmt"
-	"os"
 	"runtime"
 
 	"bitbucket.org/GeertJohan/audioaddict/aaapi"
@@ -65,8 +64,8 @@ func NewPlayer(account *aaapi.Account) *Player {
 func (p *Player) run() {
 	var err error
 
-	// Load the VLC engine.
-	p.vlcInstance, err = vlc.New(os.Args)
+	// Load the VLC engine with quit option
+	p.vlcInstance, err = vlc.New([]string{"-q"})
 	if err != nil {
 		p.handleError(fmt.Errorf("New(): %v", err))
 		return
