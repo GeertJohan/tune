@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/foize/go.fifo"
 	"github.com/nsf/termbox-go"
-	"time"
 )
 
 const (

@@ -1,16 +1,17 @@
 package main
 
 import (
-	"bitbucket.org/GeertJohan/audioaddict/aaapi"
-	"bitbucket.org/GeertJohan/audioaddict/aaplayer"
 	"fmt"
-	"github.com/GeertJohan/go.linenoise"
-	"github.com/mitchellh/panicwrap"
-	"github.com/nsf/termbox-go"
 	"os"
 	"os/signal"
 	"strconv"
 	"time"
+
+	"bitbucket.org/GeertJohan/audioaddict/aaapi"
+	"bitbucket.org/GeertJohan/audioaddict/aaplayer"
+	"github.com/GeertJohan/go.linenoise"
+	"github.com/mitchellh/panicwrap"
+	"github.com/nsf/termbox-go"
 )
 
 func main() {
