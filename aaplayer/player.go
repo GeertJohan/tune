@@ -83,7 +83,6 @@ controlloop:
 			}
 			volume, err := p.vlcPlayer.Volume()
 			if err != nil {
-				//++ TODO: use error event channel
 				p.handleError(fmt.Errorf("Volume(): %v", err))
 				retCh <- -1
 				break
@@ -97,7 +96,6 @@ controlloop:
 			}
 			err := p.vlcPlayer.SetVolume(volume)
 			if err != nil {
-				//++ TODO: use error event channel
 				p.handleError(fmt.Errorf("SetVolume(): %v", err))
 			}
 
@@ -123,7 +121,6 @@ controlloop:
 			// Create a new media item from an url.
 			media, err := p.vlcInstance.OpenMediaUri(streamURLs[0])
 			if err != nil {
-				//++ TODO: use error event channel
 				p.handleError(fmt.Errorf("OpenMediaUri(): %v", err))
 				break
 			}
@@ -131,7 +128,6 @@ controlloop:
 			// Create a player for the created media.
 			p.vlcPlayer, err = media.NewPlayer()
 			if err != nil {
-				//++ TODO: use error event channel
 				p.handleError(fmt.Errorf("NewPlayer(): %v", err))
 				media.Release()
 				break
@@ -143,14 +139,12 @@ controlloop:
 			// set saved volume
 			err = p.vlcPlayer.SetVolume(p.volume)
 			if err != nil {
-				fmt.Printf("e volume: %v\n", err)
-				os.Exit(1)
+				p.handleError(fmt.Errorf("SetVolume: %v", err))
 			}
 
 			// get an event manager for our player.
 			evt, err := p.vlcPlayer.Events()
 			if err != nil {
-				//++ TODO: use error event channel
 				p.handleError(fmt.Errorf("Events(): %v", err))
 				break
 			}
