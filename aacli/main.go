@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"time"
 
-	"bitbucket.org/GeertJohan/audioaddict/aaapi"
-	"bitbucket.org/GeertJohan/audioaddict/aaplayer"
 	"github.com/GeertJohan/go.linenoise"
 	"github.com/mitchellh/panicwrap"
 	"github.com/nsf/termbox-go"
+
+	"gitlab.com/GeertJohan/audioaddict/aaapi"
+	"gitlab.com/GeertJohan/audioaddict/aaplayer"
 )
 
 func main() {

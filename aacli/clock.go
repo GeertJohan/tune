@@ -29,7 +29,7 @@ func (c *Clock) run() {
 	ticker := time.NewTicker(sec)
 	for {
 		select {
-		case <-ticker.C:
+		case <-ticker.C: // TODO: does this need buffering for more accuracy?
 			c.t = c.t.Add(sec)
 		case retCh := <-c.chGet:
 			retCh <- c.t

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"runtime"
 
-	"bitbucket.org/GeertJohan/audioaddict/aaapi"
-	"github.com/jteeuwen/go-vlc"
+	"github.com/nzlov/go-vlc"
+
+	"gitlab.com/GeertJohan/audioaddict/aaapi"
 )
 
 var (
