@@ -1,0 +1,14 @@
+Wrap new API, only track_history remains.
+
+> di.fm/login with post formvalues gives cookie.
+> Save cookie in config file if user wants that
+> Get http://www.di.fm/webplayer3/config for full channellist and membership type etc. Just one big blob, walk over some arrays to map by id and/or keys
+> After startup, only required to do track_history calls for channels to get latest tracks.
+
+> api.Session ? with all this data?
+> session.ChannelList()
+> channel.TrackList()
+> channel.CurrentTrack()
+> channel.Banner
+> channel.Asset
+> channel.SimilarChannels() []int

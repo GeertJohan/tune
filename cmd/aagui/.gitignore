@@ -1,0 +1,6 @@
+moc.*
+moc_*
+rcc.*
+rcc_*
+deploy/
+linux/

@@ -1,0 +1,5 @@
+"//waveform.audioaddict.com/prd/e/3/7/4/5/67ebb8bb5c3bf570f3fb3e96b84549ed8b9.json"
+
+In de call naar track specifieke info: http://www.di.fm/_papi/v1/di/tracks/1893818
+
+Array met heul veul floats (sec vuln? json feed met array als root object?)
