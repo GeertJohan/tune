@@ -9,6 +9,13 @@ import (
 )
 
 const (
+	colorDefaultForeground    = termbox.Attribute(249)
+	colorHelpForeground       = termbox.Attribute(245)
+	colorTrackTitleBackground = termbox.Attribute(245)
+	colorBlack                = termbox.ColorBlack
+)
+
+const (
 	runePlaying       = '▶'
 	runeStopped       = '◾'
 	runeTimebarStart  = '['
@@ -57,7 +64,7 @@ func NewDisplay(title string) (*Display, error) {
 		return nil, fmt.Errorf("termbox.Init(): %v", err)
 	}
 	termbox.HideCursor()
-	err = termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
+	err = termbox.Clear(colorBlack, colorBlack)
 	if err != nil {
 		return nil, fmt.Errorf("termbox.Clear(): %v", err)
 	}
@@ -80,7 +87,7 @@ func NewDisplay(title string) (*Display, error) {
 
 func (d *Display) Close() {
 	d.chStop <- struct{}{}
-	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
+	termbox.Clear(colorBlack, colorBlack)
 	termbox.Close()
 }
 
@@ -136,11 +143,11 @@ func (d *Display) notificationManager() {
 			if x > d.size.x {
 				break
 			}
-			termbox.SetCell(x, y, c, termbox.ColorWhite, termbox.ColorBlack)
+			termbox.SetCell(x, y, c, colorDefaultForeground, colorBlack)
 		}
 		for i := len(d.message); i < prevLength; i++ {
 			x := i + len(d.title) + 3
-			termbox.SetCell(x, y, ' ', termbox.ColorBlack, termbox.ColorBlack)
+			termbox.SetCell(x, y, ' ', colorBlack, colorBlack)
 		}
 		termbox.Flush()
 		d.unlock()
@@ -161,30 +168,30 @@ func (d *Display) notificationManager() {
 
 func (d *Display) drawBasics() {
 	// title and title seperator
-	d.writeText(d.title+` - `, 0, 0, termbox.ColorBlack, termbox.Attribute(244))
-	d.writeText(d.title+` - `, 0, d.size.y-2, termbox.ColorWhite, termbox.ColorBlack)
+	d.writeText(d.title+` - `, 0, 0, colorBlack, termbox.Attribute(249))
+	d.writeText(d.title+` - `, 0, d.size.y-2, colorDefaultForeground, colorBlack)
 
 	// help
 	helpmessage := `h: help  q: quit  space: play/stop  +/-: volume`
 	for i, c := range helpmessage {
-		termbox.SetCell(i, d.size.y-1, c, termbox.Attribute(244), termbox.ColorBlack)
+		termbox.SetCell(i, d.size.y-1, c, colorHelpForeground, colorBlack)
 	}
 }
 func (d *Display) drawChannel() {
 	x := len(d.title) + 3
-	x = d.writeText(d.channelName, x, 0, termbox.ColorBlack, termbox.Attribute(244))
-	d.clearRow(x, 0, termbox.Attribute(244))
+	x = d.writeText(d.channelName, x, 0, colorBlack, termbox.Attribute(249))
+	d.clearRow(x, 0, termbox.Attribute(249))
 }
 func (d *Display) drawTrackTitle() {
 	x := 5
-	x = d.writeText(d.trackTitle, x, 1, termbox.ColorWhite, termbox.ColorBlack)
-	d.clearRow(x, 1, termbox.ColorBlack)
+	x = d.writeText(d.trackTitle, x, 1, colorTrackTitleBackground, colorBlack)
+	d.clearRow(x, 1, colorBlack)
 }
 func (d *Display) drawPlaying() {
 	if d.playing {
-		termbox.SetCell(2, 1, runePlaying, termbox.ColorGreen, termbox.ColorBlack)
+		termbox.SetCell(2, 1, runePlaying, termbox.ColorGreen, colorBlack)
 	} else {
-		termbox.SetCell(2, 1, runeStopped, termbox.ColorRed, termbox.ColorBlack)
+		termbox.SetCell(2, 1, runeStopped, termbox.ColorRed, colorBlack)
 	}
 }
 func (d *Display) drawTime() {
@@ -197,12 +204,12 @@ func (d *Display) drawTime() {
 
 	offsetStart := len(passedStr)
 	for x, c := range passedStr {
-		termbox.SetCell(x, 2, c, termbox.ColorWhite, termbox.ColorBlack)
+		termbox.SetCell(x, 2, c, colorDefaultForeground, colorBlack)
 	}
 
 	offsetEnd := len(durationStr)
 	for x, c := range durationStr {
-		termbox.SetCell(d.size.x-offsetEnd+x, 2, c, termbox.ColorWhite, termbox.ColorBlack)
+		termbox.SetCell(d.size.x-offsetEnd+x, 2, c, colorDefaultForeground, colorBlack)
 	}
 	posStart := offsetStart + 1
 	posEnd := d.size.x - offsetEnd - 2
@@ -218,13 +225,13 @@ func (d *Display) drawTime() {
 	if barSizePassed > barSize {
 		barSizePassed = barSize
 	}
-	termbox.SetCell(posStart, 2, runeTimebarStart, termbox.ColorWhite, termbox.ColorBlack)
-	termbox.SetCell(posEnd, 2, runeTimebarEnd, termbox.ColorWhite, termbox.ColorBlack)
+	termbox.SetCell(posStart, 2, runeTimebarStart, colorDefaultForeground, colorBlack)
+	termbox.SetCell(posEnd, 2, runeTimebarEnd, colorDefaultForeground, colorBlack)
 	for x := posStart + 1; x <= posStart+1+barSizePassed; x++ {
-		termbox.SetCell(x, 2, runeTimebarPassed, termbox.ColorWhite, termbox.ColorBlack)
+		termbox.SetCell(x, 2, runeTimebarPassed, colorDefaultForeground, colorBlack)
 	}
 	for x := posStart + 1 + barSizePassed + 1; x < posEnd; x++ {
-		termbox.SetCell(x, 2, runeTimebarLeft, termbox.ColorWhite, termbox.ColorBlack)
+		termbox.SetCell(x, 2, runeTimebarLeft, colorDefaultForeground, colorBlack)
 	}
 }
 
@@ -254,26 +261,26 @@ func (d *Display) drawChannelList() {
 		y := viewStartY + i
 		x := 5
 		if j >= len(d.channelList) {
-			d.clearRow(x, y, termbox.ColorBlack)
+			d.clearRow(x, y, colorBlack)
 			continue
 		}
 		chinfo := d.channelList[j]
 		selectionRune := ' '
-		attrBackground := termbox.ColorBlack
+		attrBackground := colorBlack
 		if d.channelListSelected == j {
 			selectionRune = runeSelected
-			attrBackground = termbox.Attribute(233)
+			attrBackground = termbox.Attribute(235)
 		}
-		termbox.SetCell(3, y, selectionRune, termbox.ColorYellow, termbox.ColorBlack)
-		x = d.writeText(chinfo.channelName+`: `, x, y, termbox.ColorWhite|termbox.AttrBold, attrBackground)
-		x = d.writeText(chinfo.trackTitle, x, y, termbox.ColorWhite, attrBackground)
+		termbox.SetCell(3, y, selectionRune, termbox.ColorYellow, colorBlack)
+		x = d.writeText(chinfo.channelName+`: `, x, y, colorDefaultForeground|termbox.AttrBold, attrBackground)
+		x = d.writeText(chinfo.trackTitle, x, y, colorDefaultForeground, attrBackground)
 		d.clearRow(x, y, attrBackground)
 	}
 }
 
 func (d *Display) clearRow(startx, y int, bg termbox.Attribute) {
 	for x := startx; x < d.size.x; x++ {
-		termbox.SetCell(x, y, ' ', termbox.ColorBlack, bg)
+		termbox.SetCell(x, y, ' ', colorBlack, bg)
 	}
 }
 
@@ -297,7 +304,7 @@ func (d *Display) Resize(x, y int) {
 	d.size.y = y
 
 	// reset termbox
-	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
+	termbox.Clear(colorBlack, colorBlack)
 
 	// draw everything
 	d.drawBasics()
