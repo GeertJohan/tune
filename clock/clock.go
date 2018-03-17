@@ -8,6 +8,8 @@ import (
 // Most users won't run ntpd or some thing simliar.
 // Since the AudioAddict servers' time might not be in sync with the client machine,
 // we need a custom clock to stay in sync with the server time.
+// TODO: Go 1.8(?) introduced monotonic clock in time.Time.
+// Use the walltime from server together with a local monotonic time and apply the diff based on local monotonic time.
 type Clock struct {
 	t time.Time
 

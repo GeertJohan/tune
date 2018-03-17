@@ -3,9 +3,8 @@ package player
 import (
 	"errors"
 	"fmt"
-	"runtime"
 
-	"gitlab.com/GeertJohan/audio-addict/api"
+	"github.com/GeertJohan/tune/api"
 
 	"github.com/nzlov/go-vlc"
 )
@@ -17,6 +16,9 @@ var (
 // Player manages the streaming of an AudioAddict music channel
 type Player struct {
 	account *api.Account
+
+	chPlay chan struct{}
+	chStop chan struct{}
 
 	chGetVolume  chan chan int
 	chSetVolume  chan int
@@ -48,8 +50,6 @@ func NewPlayer(account *api.Account) *Player {
 		chSetVolume:  make(chan int),
 		chGetChannel: make(chan chan *api.Channel),
 		chSetChannel: make(chan *api.Channel),
-
-		volume: 50,
 
 		chClose:  make(chan struct{}),
 		chLock:   make(chan struct{}),
@@ -150,14 +150,12 @@ controlloop:
 			}
 
 			// Be notified when the player stops playing.
-			// This is just to demonstrate usage of event callbacks.
 			evt.Attach(vlc.MediaPlayerStopped, hookPlayerStoppedHandler, p)
 			evt.Attach(vlc.MediaPlayerPlaying, hookPlayerPlayingHandler, p)
 			evt.Attach(vlc.MediaPlayerTitleChanged, hookPlayerTitleChangedHandler, p)
 
 			// Play the audio.
 			p.vlcPlayer.Play()
-			runtime.GC()
 		case <-p.chClose:
 			if p.vlcPlayer != nil {
 				p.vlcPlayer.Stop()
@@ -237,7 +235,7 @@ func (p *Player) handleError(err error) {
 }
 
 // PlayStop starts the player when it was stopped, and stops the player when it was started.
-// When there is no player attached, false is returned.
+// When playback has stopped or there is no player attached, false is returned.
 // Otherwise the boolean indicates if the player playing after this call.
 func (p *Player) PlayStop() bool {
 	p.lock()
@@ -253,6 +251,7 @@ func (p *Player) PlayStop() bool {
 		p.vlcPlayer.Stop()
 		return false
 	}
+	p.vlcPlayer.SetVolume(p.volume)
 	p.vlcPlayer.Play()
 	return true
 }
