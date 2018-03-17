@@ -1,6 +1,8 @@
 # Tune
 
-Tune is an interface to the [AudioAddict](https://www.audioaddict.com/) web radio's such as [Digitally Imported a.k.a. di.fm](https://di.fm) and [RadioTunes](https://radiotunes.com).
+Tune is a music-player for the [AudioAddict](https://www.audioaddict.com/) web radio's such as [Digitally Imported a.k.a. di.fm](https://di.fm) and [RadioTunes](https://radiotunes.com).
+
+Currently tune is only available with a Command-line interface (cli). A Graphical User Interface (based on Qt) is on the roadmap.
 
 ## Features
 
