@@ -1,16 +1,12 @@
 package player
 
 import (
-	"errors"
 	"fmt"
 
-	"github.com/GeertJohan/tune/api"
-
 	"github.com/nzlov/go-vlc"
-)
+	"github.com/pkg/errors"
 
-var (
-	ErrNoPlayer = errors.New("no player")
+	"github.com/GeertJohan/tune/api"
 )
 
 // Player manages the streaming of an AudioAddict music channel
@@ -68,10 +64,35 @@ func (p *Player) run() {
 	// Load the VLC engine with quit option
 	p.vlcInstance, err = vlc.New([]string{"-q"})
 	if err != nil {
-		p.handleError(fmt.Errorf("New(): %v", err))
+		p.handleError(errors.Wrap(err, "failed to create new vlc instance"))
 		return
 	}
 	defer p.vlcInstance.Release()
+
+	p.vlcPlayer, err = p.vlcInstance.NewPlayer()
+	if err != nil {
+		p.handleError(errors.Wrap(err, "failed to create new vlc player"))
+		return
+	}
+
+	// set saved volume
+	err = p.vlcPlayer.SetVolume(p.volume)
+	if err != nil {
+		p.handleError(errors.Wrap(err, "failed to set volume on new vlc player"))
+		return
+	}
+
+	// get an event manager for our player.
+	evt, err := p.vlcPlayer.Events()
+	if err != nil {
+		p.handleError(errors.Wrap(err, "failed to get events manager for new vlc player"))
+		return
+	}
+
+	// Be notified when the player stops playing.
+	evt.Attach(vlc.MediaPlayerStopped, hookPlayerStoppedHandler, p)
+	evt.Attach(vlc.MediaPlayerPlaying, hookPlayerPlayingHandler, p)
+	evt.Attach(vlc.MediaPlayerTitleChanged, hookPlayerTitleChangedHandler, p)
 
 controlloop:
 	for {
@@ -83,7 +104,7 @@ controlloop:
 			}
 			volume, err := p.vlcPlayer.Volume()
 			if err != nil {
-				p.handleError(fmt.Errorf("Volume(): %v", err))
+				p.handleError(errors.Wrap(err, "failed to get current volume from vlc player"))
 				retCh <- -1
 				break
 			}
@@ -91,13 +112,10 @@ controlloop:
 
 		case volume := <-p.chSetVolume:
 			p.volume = volume
-			if p.vlcPlayer == nil {
+			if p.vlcPlayer == nil || !p.vlcPlayer.IsPlaying() {
 				break
 			}
-			err := p.vlcPlayer.SetVolume(volume)
-			if err != nil {
-				p.handleError(fmt.Errorf("SetVolume(): %v", err))
-			}
+			p.refreshVolume()
 
 		case retCh := <-p.chGetChannel:
 			retCh <- p.curChannel
@@ -105,12 +123,6 @@ controlloop:
 		case ch := <-p.chSetChannel:
 			// set current channel
 			p.curChannel = ch
-
-			// cleanup previous player (if any)
-			if p.vlcPlayer != nil {
-				p.vlcPlayer.Stop()
-				p.vlcPlayer.Release()
-			}
 
 			streamURLs, err := ch.StreamURLs(p.account)
 			if err != nil {
@@ -125,37 +137,26 @@ controlloop:
 				break
 			}
 
-			// Create a player for the created media.
-			p.vlcPlayer, err = media.NewPlayer()
+			if p.vlcPlayer.IsPlaying() {
+				err = p.vlcPlayer.Stop()
+				if err != nil {
+					p.handleError(errors.Wrap(err, "failed to stop vlc player before setting new media"))
+					break
+				}
+			}
+
+			err = p.vlcPlayer.SetMedia(media)
 			if err != nil {
-				p.handleError(fmt.Errorf("NewPlayer(): %v", err))
-				media.Release()
+				p.handleError(errors.Wrap(err, "failed to set media in player"))
 				break
 			}
 
-			// We don't need the media anymore, now that we have the player.
 			media.Release()
 
-			// set saved volume
-			err = p.vlcPlayer.SetVolume(p.volume)
+			err = p.vlcPlayer.Play()
 			if err != nil {
-				p.handleError(fmt.Errorf("SetVolume: %v", err))
+				p.handleError(errors.Wrap(err, "failed to play new media"))
 			}
-
-			// get an event manager for our player.
-			evt, err := p.vlcPlayer.Events()
-			if err != nil {
-				p.handleError(fmt.Errorf("Events(): %v", err))
-				break
-			}
-
-			// Be notified when the player stops playing.
-			evt.Attach(vlc.MediaPlayerStopped, hookPlayerStoppedHandler, p)
-			evt.Attach(vlc.MediaPlayerPlaying, hookPlayerPlayingHandler, p)
-			evt.Attach(vlc.MediaPlayerTitleChanged, hookPlayerTitleChangedHandler, p)
-
-			// Play the audio.
-			p.vlcPlayer.Play()
 		case <-p.chClose:
 			if p.vlcPlayer != nil {
 				p.vlcPlayer.Stop()
@@ -206,6 +207,7 @@ var hookPlayerPlayingHandler = func(evt *vlc.Event, data interface{}) {
 	if !ok {
 		panic("expected data to be *Player")
 	}
+	p.refreshVolume()
 	if p.playerPlayingHandler != nil {
 		p.playerPlayingHandler()
 	}
@@ -251,7 +253,6 @@ func (p *Player) PlayStop() bool {
 		p.vlcPlayer.Stop()
 		return false
 	}
-	p.vlcPlayer.SetVolume(p.volume)
 	p.vlcPlayer.Play()
 	return true
 }
@@ -310,4 +311,11 @@ func (p *Player) Volume() int {
 	p.chGetVolume <- retCh
 	volume := <-retCh
 	return volume
+}
+
+func (p *Player) refreshVolume() {
+	err := p.vlcPlayer.SetVolume(p.volume)
+	if err != nil {
+		p.handleError(errors.Wrap(err, "failed to change volume"))
+	}
 }

@@ -13,8 +13,8 @@ import (
 
 	"github.com/GeertJohan/tune/api"
 	"github.com/GeertJohan/tune/clock"
-	"github.com/GeertJohan/tune/config"
-	aaplayer "github.com/GeertJohan/tune/player"
+	tuneplayer "github.com/GeertJohan/tune/player"
+	tunesettings "github.com/GeertJohan/tune/settings"
 )
 
 func main() {
@@ -26,14 +26,10 @@ func main() {
 		os.Exit(exitStatus)
 	}
 
-	conf, err := config.Load()
+	settings, err := tunesettings.Load()
 	if err != nil {
-		if err == config.ErrNoConfigFile {
-			conf = config.New()
-		} else {
-			fmt.Printf("error loading conf: %v\n", err)
-			os.Exit(1)
-		}
+		fmt.Printf("error loading or creating settings file: %v\n", err)
+		os.Exit(1)
 	}
 
 	// hardcode di.fm network for now
@@ -41,8 +37,8 @@ func main() {
 
 	// authenticate account
 	var account *api.Account
-	if conf.Account.APIKey != "" {
-		account, err = network.AuthenticateAPIKey(conf.Account.APIKey)
+	if settings.Account.APIKey != "" {
+		account, err = network.AuthenticateAPIKey(settings.Account.APIKey)
 		if err == api.ErrInvalidCredentials {
 			fmt.Println("Could not authenticate with saved API key.")
 		} else if err != nil {
@@ -63,15 +59,15 @@ func main() {
 				fmt.Printf("error authenticating with username/password: %v\n", err)
 				os.Exit(1)
 			}
-			conf.Account.APIKey = account.APIKey
-			conf.Save()
+			settings.Account.APIKey = account.APIKey
+			settings.Save()
 			break
 		}
 	}
 
 	var sl *api.Streamlist
-	if conf.Settings.StreamlistKey != "" {
-		sl, err = network.StreamlistByKey(conf.Settings.StreamlistKey)
+	if settings.Settings.StreamlistKey != "" {
+		sl, err = network.StreamlistByKey(settings.Settings.StreamlistKey)
 		if err != nil {
 			fmt.Println("Could not use saved stream quality, selecting best quality.")
 			linenoise.Line("Press enter to continue")
@@ -79,8 +75,8 @@ func main() {
 	}
 	if sl == nil {
 		sl = network.BestStreamlist(account.Premium)
-		conf.Settings.StreamlistKey = sl.Key
-		conf.Save()
+		settings.Settings.StreamlistKey = sl.Key
+		settings.Save()
 	}
 
 	// get all channels
@@ -137,8 +133,8 @@ func main() {
 	}()
 
 	// create player
-	player := aaplayer.NewPlayer(account)
-	player.SetVolume(conf.Player.Volume)
+	player := tuneplayer.NewPlayer(account)
+	player.SetVolume(settings.Player.Volume)
 	defer player.Close()
 
 	var updateTrack func()
@@ -195,8 +191,8 @@ func main() {
 	signal.Notify(sigChan, os.Kill)
 
 	// start channel that was previously being played
-	if conf.Player.LastPlayedChannel != "" {
-		channel := channelsByKey[conf.Player.LastPlayedChannel]
+	if settings.Player.LastPlayedChannel != "" {
+		channel := channelsByKey[settings.Player.LastPlayedChannel]
 		if channel != nil {
 			player.SetChannel(channel)
 			display.SetChannel(channel.Name, channel.Key)
@@ -204,17 +200,17 @@ func main() {
 	}
 
 	changeVolume := func(change int) {
-		conf.Player.Volume += change
-		if conf.Player.Volume < 0 {
-			conf.Player.Volume = 0
+		settings.Player.Volume += change
+		if settings.Player.Volume < 0 {
+			settings.Player.Volume = 0
 		}
-		if conf.Player.Volume > 100 {
-			conf.Player.Volume = 100
+		if settings.Player.Volume > 100 {
+			settings.Player.Volume = 100
 		}
 		// first set volume (fast audio feedback to user), afterwards save conf to disk
-		player.SetVolume(conf.Player.Volume)
-		display.Notify(fmt.Sprintf("volume set to %02d%%", conf.Player.Volume))
-		conf.Save()
+		player.SetVolume(settings.Player.Volume)
+		display.Notify(fmt.Sprintf("volume set to %02d%%", settings.Player.Volume))
+		settings.Save()
 	}
 
 eventloop:
@@ -235,8 +231,8 @@ eventloop:
 						ch := channelsByKey[channelKey]
 						player.SetChannel(ch)
 						display.SetChannel(ch.Name, ch.Key)
-						conf.Player.LastPlayedChannel = ch.Key
-						conf.Save()
+						settings.Player.LastPlayedChannel = ch.Key
+						settings.Save()
 					}
 				case termbox.KeyArrowUp:
 					display.MoveChannelListSelection(-1)
