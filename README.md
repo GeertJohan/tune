@@ -4,6 +4,10 @@ Tune is a music-player for the [AudioAddict](https://www.audioaddict.com/) web r
 
 Currently tune is only available with a Command-line interface (cli). A Graphical User Interface (based on Qt) is on the roadmap.
 
+## Pre-alpha
+
+There is no stable release yet. Tune is already usable as `tune-cli`. However, the CLI and GUI as well as the setting file layout and `api` package outline might (and will) change.
+
 ## Features
 
 Tune is still a work in progress. I've recently decided to open-source my work on it so far. Currently, features include:
