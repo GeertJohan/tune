@@ -93,15 +93,16 @@ func (n *Network) authenticate(authValues url.Values) (*Account, error) {
 	return a, nil
 }
 
+// API return structure:
 // {
-// 	"api_key":"4d0ee49d95e7a0205ecd6ba2452dd6ac",
+// 	"api_key":"<your api key>",
 // 	"confirmed":true,
-// 	"email":"gjr19912@gmail.com",
+// 	"email":"<your account email address>",
 // 	"first_name":"Geert-Johan",
 // 	"fraudulent":null,
 // 	"id":66910,
 // 	"last_name":"Riemer",
-// 	"listen_key":"2519cde93c2cf51",
+// 	"listen_key":"<your listen key>",
 // 	"timezone":"Eastern Time (US & Canada)",
 // 	"network_favorite_channels":[
 // 		{
