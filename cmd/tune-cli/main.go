@@ -111,25 +111,28 @@ func main() {
 
 	// setup tracklist on display
 	go func() {
-		trackHistory, err := network.TrackHistory()
-		if err != nil {
-			fmt.Printf("error getting track history: %v\n", err)
-			os.Exit(1)
-		}
-		channelList := make([]*channelInfo, 0, len(channels))
-		for _, ch := range channels {
-			ci := &channelInfo{
-				channelKey:  ch.Key,
-				channelName: ch.Name,
+		for {
+			trackHistory, err := network.TrackHistory()
+			if err != nil {
+				fmt.Printf("error getting track history: %v\n", err)
+				os.Exit(1)
 			}
+			channelList := make([]*channelInfo, 0, len(channels))
+			for _, ch := range channels {
+				ci := &channelInfo{
+					channelKey:  ch.Key,
+					channelName: ch.Name,
+				}
 
-			trackInfo := trackHistory[strconv.Itoa(ch.ID)]
-			if trackInfo != nil {
-				ci.trackTitle = trackInfo.Name
+				trackInfo := trackHistory[strconv.Itoa(ch.ID)]
+				if trackInfo != nil {
+					ci.trackTitle = trackInfo.Name
+				}
+				channelList = append(channelList, ci)
 			}
-			channelList = append(channelList, ci)
+			display.SetChannelList(channelList)
+			time.Sleep(1 * time.Minute)
 		}
-		display.SetChannelList(channelList)
 	}()
 
 	// create player
