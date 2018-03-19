@@ -272,6 +272,9 @@ func (d *Display) drawChannelList() {
 			attrBackground = termbox.Attribute(235)
 		}
 		termbox.SetCell(3, y, selectionRune, termbox.ColorYellow, colorBlack)
+		if d.channelKey == chinfo.channelKey {
+			x = d.writeText(` `+string(runePlaying)+` `, x, y, termbox.ColorGreen, colorBlack)
+		}
 		x = d.writeText(chinfo.channelName+`: `, x, y, colorDefaultForeground|termbox.AttrBold, attrBackground)
 		x = d.writeText(chinfo.trackTitle, x, y, colorDefaultForeground, attrBackground)
 		d.clearRow(x, y, attrBackground)
@@ -345,6 +348,7 @@ func (d *Display) SetPlaying(playing bool) {
 	defer d.unlock()
 	d.playing = playing
 	d.drawPlaying()
+	d.drawChannelList()
 	termbox.Flush()
 }
 
