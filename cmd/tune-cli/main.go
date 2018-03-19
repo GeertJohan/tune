@@ -229,7 +229,7 @@ eventloop:
 					break eventloop
 				case termbox.KeySpace:
 					channelKey := display.GetChannelSelection()
-					if player.Channel().Key == channelKey {
+					if player.Channel() != nil && player.Channel().Key == channelKey {
 						player.PlayStop()
 					} else {
 						ch := channelsByKey[channelKey]
