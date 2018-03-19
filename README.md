@@ -22,9 +22,9 @@ The following features are currently in progress or on the roadmap:
 - Investigate more lightweight playback libraries
 - Cross platform support (I'm just working with linux currently)
 
-## Building yourself
+## Installing
 
-Since releases aren't provided yet, you'll have to build yourself. Make sure go is installed and run:
+Since releases aren't provided yet, you'll have to build manually. Make sure go is installed and run:
 
 ```sh
 go get github.com/GeertJohan/tune/cmd/tune-cli
