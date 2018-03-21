@@ -174,8 +174,8 @@ func (d *Display) drawBasics() {
 	d.writeText(d.title+` - `, 0, 0, colorBlack, termbox.Attribute(249))
 	d.writeText(d.title+` - `, 0, d.size.y-2, colorDefaultForeground, colorBlack)
 
-	// help
-	helpmessage := `h: help  q: quit  space: play/stop  +/-: volume`
+	// display key help
+	helpmessage := `q: quit  up/down: select channel  space: play/stop  +/-: volume`
 	for i, c := range helpmessage {
 		termbox.SetCell(i, d.size.y-1, c, colorHelpForeground, colorBlack)
 	}
