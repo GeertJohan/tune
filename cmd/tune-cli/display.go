@@ -252,30 +252,30 @@ func (d *Display) drawChannelList() {
 	} else if d.channelListStart+viewHeight <= d.channelListSelected {
 		d.channelListStart = d.channelListSelected - viewHeight + 1
 	}
-
+	if d.channelListStart+viewHeight > len(d.channelList) {
+		d.channelListStart = len(d.channelList) - viewHeight
+	}
 	if d.channelListStart < 0 {
 		d.channelListStart = 0
-	} else if d.channelListStart+viewHeight > len(d.channelList) {
-		d.channelListStart = len(d.channelList) - viewHeight
 	}
 
 	for i := 0; i < viewHeight; i++ {
-		j := i + d.channelListStart
+		channelListPosition := i + d.channelListStart
 		y := viewStartY + i
 		x := 5
-		if j >= len(d.channelList) {
+		if channelListPosition >= len(d.channelList) {
 			d.clearRow(x, y, colorBlack)
 			continue
 		}
-		chinfo := d.channelList[j]
+		chinfo := d.channelList[channelListPosition]
 		selectionRune := ' '
 		attrBackground := colorBlack
-		if d.channelListSelected == j {
+		if d.channelListSelected == channelListPosition {
 			selectionRune = runeSelected
 			attrBackground = termbox.Attribute(235)
 		}
 		termbox.SetCell(3, y, selectionRune, termbox.ColorYellow, colorBlack)
-		if d.channelKey == chinfo.channelKey {
+		if d.playing && d.channelKey == chinfo.channelKey {
 			x = d.writeText(` `+string(runePlaying)+` `, x, y, termbox.ColorGreen, colorBlack)
 		}
 		x = d.writeText(chinfo.channelName+`: `, x, y, colorDefaultForeground|termbox.AttrBold, attrBackground)
