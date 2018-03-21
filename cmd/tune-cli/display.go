@@ -57,7 +57,7 @@ type channelInfo struct {
 	trackTitle  string
 }
 
-func NewDisplay(title string) (*Display, error) {
+func NewDisplay() (*Display, error) {
 	// init display
 	err := termbox.Init()
 	if err != nil {
@@ -70,8 +70,6 @@ func NewDisplay(title string) (*Display, error) {
 	}
 	termbox.SetOutputMode(termbox.Output256)
 	d := &Display{
-		title: title,
-
 		chStop:   make(chan struct{}),
 		chLock:   make(chan struct{}),
 		chUnlock: make(chan struct{}),
@@ -89,6 +87,11 @@ func (d *Display) Close() {
 	d.chStop <- struct{}{}
 	termbox.Clear(colorBlack, colorBlack)
 	termbox.Close()
+}
+
+func (d *Display) SetTitle(title string) {
+	d.title = title
+	d.drawBasics()
 }
 
 func (d *Display) run() {

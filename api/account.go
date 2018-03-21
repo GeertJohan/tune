@@ -93,6 +93,16 @@ func (n *Network) authenticate(authValues url.Values) (*Account, error) {
 	return a, nil
 }
 
+// IsFavoriteChannel returns whether the channel (provided by id) is favorited in the account.
+func (a *Account) IsFavoriteChannel(id int) bool {
+	for _, favoriteID := range a.Favorites {
+		if id == favoriteID {
+			return true
+		}
+	}
+	return false
+}
+
 // API return structure:
 // {
 // 	"api_key":"<your api key>",

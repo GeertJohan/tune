@@ -86,8 +86,10 @@ func main() {
 		os.Exit(1)
 	}
 	channelsByKey := make(map[string]*api.Channel)
+	channelsByID := make(map[int]*api.Channel)
 	for _, channel := range channels {
 		channelsByKey[channel.Key] = channel
+		channelsByID[channel.ID] = channel
 	}
 
 	// create a clock
@@ -102,23 +104,44 @@ func main() {
 	}
 
 	// create display
-	display, err := NewDisplay(network.Name)
+	display, err := NewDisplay()
 	if err != nil {
 		fmt.Printf("error setting up display: %v\n", err)
 		os.Exit(1)
 	}
 	defer display.Close()
+	display.SetTitle(network.Name)
 
 	// setup tracklist on display
 	go func() {
+		// create a list of channels that we want to display
+		var displayedChannels []*api.Channel
+		// add favorites to the start of the list (if logged in)
+		if account != nil {
+			for _, favoriteID := range account.Favorites {
+				displayedChannels = append(displayedChannels, channelsByID[favoriteID])
+			}
+		}
+		// add the rest of the (non-favorite) channels
+		for _, ch := range channels {
+			if account != nil && account.IsFavoriteChannel(ch.ID) {
+				continue
+			}
+			displayedChannels = append(displayedChannels, ch)
+		}
+
 		for {
+			// fetch the latest track history from the servers
 			trackHistory, err := network.TrackHistory()
 			if err != nil {
 				fmt.Printf("error getting track history: %v\n", err)
 				os.Exit(1)
 			}
-			channelList := make([]*channelInfo, 0, len(channels))
-			for _, ch := range channels {
+			// create a new list with displaydata for the channels
+			channelList := make([]*channelInfo, 0, len(displayedChannels))
+
+			// iterate over all channels we want to display and augment them with the latest track history
+			for _, ch := range displayedChannels {
 				ci := &channelInfo{
 					channelKey:  ch.Key,
 					channelName: ch.Name,
